@@ -10,27 +10,26 @@
 # Author:
 #   bouzuya <m@bouzuya.net>
 
-Fs = require 'fs'
+fs = require 'fs'
 
 config =
-  path: process.env.HUBOT_FILE_BRAIN_PATH
+  path: '/var/hubot/brain.json'
+
+if process.env.HUBOT_FILE_BRAIN_PATH
+  config.path = process.env.HUBOT_FILE_BRAIN_PATH
 
 module.exports = (robot) ->
-  unless config.path?
-    robot.logger.error 'process.env.HUBOT_FILE_BRAIN_PATH is not defined'
-    return
 
   robot.brain.setAutoSave false
 
   load = ->
-    if Fs.existsSync config.path
-      data = JSON.parse Fs.readFileSync config.path, encoding: 'utf-8'
+    if fs.existsSync config.path
+      data = JSON.parse fs.readFileSync config.path, 'utf-8'
       robot.brain.mergeData data
     robot.brain.setAutoSave true
 
-  save = (data) ->
-    Fs.writeFileSync config.path, JSON.stringify data
-
-  robot.brain.on 'save', save
+  robot.brain.on 'save', (data) ->
+    fs.writeFileSync config.path, JSON.stringify(data), 'utf-8'
 
   load()
+
